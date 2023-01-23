@@ -31,13 +31,6 @@ data['ph'] = data['ph'].replace(np.NaN, data['ph'].mean())
 data['Sulfate'] = data['Sulfate'].replace(np.NaN, data['Sulfate'].mean())
 data['Trihalomethanes'] = data['Trihalomethanes'].replace(np.NaN, data['Trihalomethanes'].mean())
 
-# Oversampling
-pot = data[data['Potability']==1]
-not_pot = data[data['Potability']==0]
-
-minority = resample(pot, n_samples=1998, replace=True)
-data = pd.concat([not_pot, minority])
-
 # Normalization
 scaler = preprocessing.MinMaxScaler()
 columns = data.columns
@@ -47,6 +40,13 @@ data = pd.DataFrame(x, columns=columns)
 # Shuffle and split in training and testing sets
 data = shuffle(data)
 train, test = train_test_split(data, test_size=0.2)
+
+# Oversampling
+pot = train[train['Potability']==1]
+not_pot = train[train['Potability']==0]
+
+minority = resample(pot, n_samples=len(not_pot), replace=True)
+train = pd.concat([not_pot, minority])
 
 # Split training in samples and labels
 train = train.to_numpy()
